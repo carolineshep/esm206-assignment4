@@ -121,11 +121,14 @@ ggplot(data = juvenile_hares_sex, aes(x = sex, y = weight)) + # Create ggplot to
 <center>**Table 2.0** Descriptive statistics (mean, median, standard deviation, and sample size) for weight (g) of juvenile snowshoe hares</center>
 ```{r, include = FALSE}
 juvenile_hares_summary <- juvenile_hares %>% 
-  group_by(sex) %>% # Group by sex
+  group_by(sex) %>% 
+  drop_na(sex) %>%
   summarize(mean = round(mean(weight, na.rm = TRUE), 2), # Find mean weight value
             median = round(median(weight, na.rm = TRUE), 2), # Find median weight value
             sd = round(sd(weight, na.rm = TRUE), 2), # Find standard deviation of weight values
-            sample_size = n()) # Find sample size
+            sample_size = n()) %>% 
+  mutate(sex = case_when(sex == "f" ~ "Female",
+                         sex == "m" ~ "Male"))
 
 ggplot(data = juvenile_hares_sex, aes(sample = weight)) + # Exploratory QQ plot to see if data is normally distributed
   geom_qq() +
@@ -152,7 +155,7 @@ juvenile_hares_summary %>%
                       "Standard Deviation (g)", 
                       "Sample Size"), 
         caption = "Juvenile Hare Weight (g) Comparison") %>% 
-  kable_styling(bootstrap_options = "striped", full_width = FALSE) # Customize table
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
 
 juvenile_effsize <- cohen.d(juvenile_male_sample, juvenile_female_sample, na.rm = TRUE) # Perform cohen.d test to find effect size
 
